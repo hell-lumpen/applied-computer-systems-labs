@@ -2,10 +2,8 @@ package org.mai.grubenkom.lab2;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
@@ -24,12 +22,6 @@ class ExchangeResult {
         exchangeMap = new HashMap<>();
         success = false;
     }
-//    public void put(Integer denomination, Integer countOfCoins) {
-//        exchangeMap.put(denomination, countOfCoins);
-//    }
-//    public void clear() {
-//        exchangeMap.clear();
-//    }
 }
 
 public class Exchanger {
