@@ -1,1 +1,8 @@
 {"bracket":[{"left":"[","right":"]"},{"left":"{","right":"}"}]}
+{"bracket":[{"left":"[","right":"]"},{"left":"{","right":"}"}]
+"bracket":[{"left":"[","right":"]"},{"left":"{","right":"}"}]}
+{"bracket":[{"left":"[","right":""},{"left":"{","right":"}"}]}
+[some(exe{1!|value|2?}jar)none]
+[some(exe{1!|value||2?}jar)none]
+[some(one{1!|value|2?}jar))none]
+{{{{ {{{{ {{{{ {{{{ ([]) }}}} }}}} }}}} }}}}
