@@ -17,12 +17,9 @@ class Error {
 
 public class BracketChecker {
     private final HashMap<Character, Character> bracketsMap;
-    private final String pathToCheckedFile;
-
-    BracketChecker(String pathToConfigFile, String pathToCheckedFile) {
+    BracketChecker(String pathToConfigFile) {
         bracketsMap = new HashMap<>();
         this.configure(pathToConfigFile);
-        this.pathToCheckedFile = pathToCheckedFile;
     }
     private void configure(String pathToConfigFile) {
         try (FileReader fileReader = new FileReader(pathToConfigFile);
@@ -100,7 +97,7 @@ public class BracketChecker {
         System.out.println("\nIncorrect bracket sequence");
     }
 
-    public void checkFile() {
+    public void checkFile(String pathToCheckedFile) {
         try (FileReader fileReader = new FileReader(pathToCheckedFile);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
