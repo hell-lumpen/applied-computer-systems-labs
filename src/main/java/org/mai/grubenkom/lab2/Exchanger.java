@@ -32,9 +32,9 @@ public class Exchanger {
         coinList = new ArrayList<>();
         exchangeResult = new ExchangeResult();
 
-        coinList.add(new Coin(5, 3));
-        coinList.add(new Coin(10, 1));
-        coinList.add(new Coin(1, 3));
+        coinList.add(new Coin(3, 3));
+//        coinList.add(new Coin(10, 1));
+//        coinList.add(new Coin(1, 3));
 
         coinList.sort(Comparator.comparingInt(Coin::getDenomination).reversed());
     }
