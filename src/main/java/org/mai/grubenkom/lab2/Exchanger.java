@@ -4,75 +4,63 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
+import java.util.Scanner;
 
 @Data
 @AllArgsConstructor
-class Coin {
+class Money {
     private int denomination;
     private int quantity;
 }
 
-@Data
-class ExchangeResult {
-    private HashMap<Integer, Integer> exchangeMap;
-    private boolean success;
-    ExchangeResult() {
-        exchangeMap = new HashMap<>();
-        success = false;
-    }
-}
-
 public class Exchanger {
-    private final ArrayList<Coin> coinList;
-    private final ExchangeResult exchangeResult;
+    ArrayList<Money> exchange = new ArrayList<>();
 
-    Exchanger() {
-        coinList = new ArrayList<>();
-        exchangeResult = new ExchangeResult();
+    private ArrayList<Money> _exchange(ArrayList<Money> exchange, int index, int sum, ArrayList<Money> lastSums, int lastSum) {
+        if (exchange.size() == index) return null;
 
-        coinList.add(new Coin(3, 3));
-//        coinList.add(new Coin(10, 1));
-//        coinList.add(new Coin(1, 3));
-
-        coinList.sort(Comparator.comparingInt(Coin::getDenomination).reversed());
+        for (int i = exchange.get(index).getQuantity(); i >= 0; i--) {
+            if (sum == lastSum + exchange.get(index).getDenomination() * i) {
+                lastSums.add(new Money(exchange.get(index).getDenomination(), i));
+                return lastSums;
+            }
+            if (sum > lastSum + exchange.get(index).getDenomination() * i) {
+                ArrayList<Money> last = new ArrayList<>(lastSums);
+                last.add(new Money(exchange.get(index).getDenomination(), i));
+                ArrayList<Money> result = _exchange(exchange, index + 1, sum, last, lastSum + exchange.get(index).getDenomination() * i);
+                if (result != null)
+                    return result;
+            }
+        }
+        return null;
     }
-    private ExchangeResult _exchange(int amountOfMoney, int coinListIndex) {
-        int countOfCoins = 0;
-        int denomination = coinList.get(coinListIndex).getDenomination();
-        int quantity = coinList.get(coinListIndex).getQuantity();
-
-        while (amountOfMoney >= denomination && quantity != 0) {
-            countOfCoins++;
-            amountOfMoney -= denomination;
-            quantity--;
-        }
-
-        if (countOfCoins != 0) {
-            exchangeResult.getExchangeMap().put(denomination, countOfCoins);
-        }
-        if (amountOfMoney != 0 && coinList.size() > coinListIndex + 1) {
-            return _exchange(amountOfMoney, coinListIndex + 1);
-        } else if (amountOfMoney != 0 && coinList.size() <= coinListIndex + 1){
-            exchangeResult.getExchangeMap().clear();
-            exchangeResult.setSuccess(false);
-            return exchangeResult;
-        }
-        exchangeResult.setSuccess(true);
-        return exchangeResult;
+    private void printArray(ArrayList<Money> arrayList) {
+        arrayList.stream()
+                .filter(money -> money.getQuantity() > 0)
+                .forEach(money -> System.out.println("Номинал: " + money.getDenomination() +
+                        ", Количество: " + money.getQuantity()));
     }
 
-    public void exchange(int amountOfMoney) {
-        System.out.printf("Change money in denominations of %d\n", amountOfMoney);
-        System.out.println("Available for exchange:");
-        coinList.forEach((coin) -> System.out.println(coin.getQuantity() + " coins in denominations of " + coin.getDenomination()));
-        ExchangeResult result = _exchange(amountOfMoney, 0);
-        if (exchangeResult.isSuccess()) {
-            System.out.println("Exchanged!");
-            result.getExchangeMap().forEach((key, value) -> System.out.println(value + " coins in denominations of " + key));
+    public void doExchange() {
+        int sum = configure();
+        ArrayList<Money> resultOfExchange = _exchange(exchange, 0, sum, new ArrayList<>(), 0);
+        if (resultOfExchange == null) {
+            System.out.println("Размен невозможен");
         } else {
-            System.err.println("No exchange possible");
+            System.out.printf("Размен для %d\n", sum);
+            printArray(resultOfExchange);
         }
+    }
+    private int configure() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Введи сумму для размена ");
+        int sum = scanner.nextInt();
+
+        exchange.add(new Money(7, 1));
+        exchange.add(new Money(5, 1));
+        exchange.add(new Money(1, 1));
+
+        printArray(exchange);
+        return sum;
     }
 }
