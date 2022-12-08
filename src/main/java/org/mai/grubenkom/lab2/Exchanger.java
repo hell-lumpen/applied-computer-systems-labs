@@ -24,7 +24,7 @@ public class Exchanger {
                 lastSums.add(new Money(exchange.get(index).getDenomination(), i));
                 return lastSums;
             }
-            if (sum > lastSum + exchange.get(index).getDenomination() * i) {
+            else if (sum > lastSum + exchange.get(index).getDenomination() * i) {
                 ArrayList<Money> last = new ArrayList<>(lastSums);
                 last.add(new Money(exchange.get(index).getDenomination(), i));
                 ArrayList<Money> result = _exchange(exchange, index + 1, sum, last, lastSum + exchange.get(index).getDenomination() * i);
@@ -56,9 +56,9 @@ public class Exchanger {
         System.out.print("Введи сумму для размена ");
         int sum = scanner.nextInt();
 
-        exchange.add(new Money(7, 1));
-        exchange.add(new Money(5, 1));
-        exchange.add(new Money(1, 1));
+        exchange.add(new Money(7, 10));
+        exchange.add(new Money(5, 10));
+//        exchange.add(new Money(1, 10));
 
         printArray(exchange);
         return sum;
