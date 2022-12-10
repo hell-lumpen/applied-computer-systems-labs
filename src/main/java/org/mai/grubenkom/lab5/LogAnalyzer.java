@@ -8,12 +8,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Data
 class QueryInfo {
@@ -44,7 +43,7 @@ public class LogAnalyzer {
             = Pattern.compile("(\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}) – INFO – RESULT QUERY FOR ID = (\\d*)");
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    public static void analyze(String pathToLogFile, int deviationInSeconds) {
+    public static void analyze(String pathToLogFile, long deviationInSeconds) {
         try (FileReader fileReader = new FileReader(pathToLogFile);
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
@@ -79,25 +78,42 @@ public class LogAnalyzer {
                 } else {
                     System.err.println("Неверная строка: " + line);
                 }
+                Thread.sleep(100);
                 printProgress(currentSize, fileSize, lineNumber);
             }
-            System.out.println("Все запросы:");
-            queryInfoList.forEach(System.out::println);
-            double executionTime = queryInfoList.stream().mapToLong(QueryInfo::getExecutionTime).average().orElse(0);
-            System.out.printf("\nАномальные запросы по времени выполнения (среднее время выполнения %f секунд):\n", executionTime);
-            queryInfoList.stream().filter(query -> query.getExecutionTime() > executionTime + deviationInSeconds).forEach(System.out::println);
+            List<QueryInfo> sortedQueryInfoList = queryInfoList
+                    .stream()
+                    .sorted(Comparator.comparingLong(QueryInfo::getExecutionTime))
+                    .toList();
+            System.out.println("Все запросы (отсортированные по возрастанию времени выполнения):");
+            sortedQueryInfoList.forEach(System.out::println);
 
-        } catch (IOException | ParseException exception) {
+            double medianExecutionTime;
+            int size = queryInfoList.size();
+            if (queryInfoList.size() % 2 == 0) {
+                medianExecutionTime = (double) (sortedQueryInfoList.get(size / 2 - 1).getExecutionTime() + sortedQueryInfoList.get(size / 2).getExecutionTime()) / 2;
+            }
+            else {
+                medianExecutionTime = sortedQueryInfoList.get(size / 2).getExecutionTime();
+            }
+
+            System.out.printf("\nАномальные запросы по времени выполнения (медиана времени выполнения %f секунд):\n", medianExecutionTime);
+            sortedQueryInfoList
+                    .stream()
+                    .filter(query -> query.getExecutionTime() > medianExecutionTime + deviationInSeconds)
+                    .forEach(System.out::println);
+
+        } catch (IOException | ParseException | InterruptedException exception) {
             System.err.println(exception.getMessage());
         }
     }
 
-    public static void printProgress(long index, long end, long lineCount) {
+    private static void printProgress(long index, long end, long lineCount) {
 
         int dotCount = (int) Math.ceil(index * 10f / end);
         StringBuilder sb = new StringBuilder("[");
 
-        sb.append("*".repeat(Math.max(0, dotCount)));
+        sb.append("■".repeat(Math.max(0, dotCount)));
         sb.append(" ".repeat(Math.max(0, 10 - dotCount)));
 
         sb.append("] ");
